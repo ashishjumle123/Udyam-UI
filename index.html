@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Udyam Registration Form</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+    <script>
+        // In your index.html's <script> tag
+
+step2Form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (validatePAN()) {
+        const step2Data = new FormData(step2Form);
+        for (let [key, value] of step2Data.entries()) {
+            formData[key] = value;
+        }
+
+        // --- REAL BACKEND SUBMISSION to Node.js server ---
+        fetch('http://localhost:8000/api/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                // Throw an error with the message from the backend
+                throw new Error(data.message || 'An unknown error occurred.');
+            }
+            return data;
+        })
+        .then(data => {
+            console.log('Backend response:', data);
+            step2Div.classList.remove('active');
+            successDiv.classList.add('active');
+            submittedDataContainer.textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+            console.error('Submission failed:', error);
+            alert(`Error: ${error.message}`); // Show the specific error from the backend
+        });
+    }
+});
+    </script>
+<body>
+
+    <div class="container">
+        <h1>Udyam Registration</h1>
+
+        <!-- Progress Tracker -->
+        <div class="progress-tracker">
+            <div id="progress-line" class="progress-line"></div>
+            <div id="step-1-indicator" class="step active">
+                <div class="step-circle">1</div>
+                <div class="step-label">Aadhaar Validation</div>
+            </div>
+            <div id="step-2-indicator" class="step">
+                <div class="step-circle">2</div>
+                <div class="step-label">PAN Validation</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Aadhaar Validation -->
+        <div id="step-1" class="form-step active">
+            <form id="form-step-1">
+                <div class="form-group">
+                    <label for="aadhaar">Aadhaar Number</label>
+                    <input type="text" id="aadhaar" name="aadhaarNumber" placeholder="Enter 12-digit Aadhaar Number" required>
+                    <div id="aadhaar-error" class="error-message">Aadhaar number must be 12 digits.</div>
+                </div>
+                <div class="form-group">
+                    <label for="name">Name as per Aadhaar</label>
+                    <input type="text" id="name" name="nameAsPerAadhaar" placeholder="Enter name as on Aadhaar card" required>
+                </div>
+                <button type="submit" class="btn">Validate & Generate OTP</button>
+            </form>
+        </div>
+
+        <!-- Step 2: PAN Validation -->
+        <div id="step-2" class="form-step">
+            <form id="form-step-2">
+                <div class="form-group">
+                    <label for="org-type">Type of Organisation</label>
+                    <select id="org-type" name="organisationType" required>
+                        <option value="Proprietorship">Proprietorship</option>
+                        <option value="Partnership">Partnership Firm</option>
+                        <option value="Private Limited Company">Private Limited Company</option>
+                        <option value="Public Limited Company">Public Limited Company</option>
+                        <option value="Self Help Group">Self Help Group</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pan">PAN Number</label>
+                    <input type="text" id="pan" name="panNumber" placeholder="Enter 10-digit PAN Number" required>
+                    <div id="pan-error" class="error-message">PAN format must be ABCDE1234F.</div>
+                </div>
+                <button type="submit" class="btn">Validate PAN & Submit</button>
+            </form>
+        </div>
+
+        <!-- Submission Success Message -->
+        <div id="step-success" class="form-step">
+            <div style="text-align:center;">
+                <div class="success-icon">&#10004;</div>
+                <h2 class="success-message">Registration Submitted!</h2>
+                <p>Your application has been successfully submitted for verification.</p>
+                <pre id="submitted-data" style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; text-align: left; margin-top: 20px; white-space: pre-wrap; word-wrap: break-word;"></pre>
+            </div>
+        </div>
+    </div>
+
+<script src="app.js"></script>
+</body>
+</html>
