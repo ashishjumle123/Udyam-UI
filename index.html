@@ -6,46 +6,6 @@
     <title>Udyam Registration Form</title>
     <link rel="stylesheet" href="style.css">
 </head>
-    <script>
-        // In your index.html's <script> tag
-
-step2Form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    if (validatePAN()) {
-        const step2Data = new FormData(step2Form);
-        for (let [key, value] of step2Data.entries()) {
-            formData[key] = value;
-        }
-
-        // --- REAL BACKEND SUBMISSION to Node.js server ---
-        fetch('http://localhost:8000/api/submit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-        })
-        .then(async response => {
-            const data = await response.json();
-            if (!response.ok) {
-                // Throw an error with the message from the backend
-                throw new Error(data.message || 'An unknown error occurred.');
-            }
-            return data;
-        })
-        .then(data => {
-            console.log('Backend response:', data);
-            step2Div.classList.remove('active');
-            successDiv.classList.add('active');
-            submittedDataContainer.textContent = JSON.stringify(data, null, 2);
-        })
-        .catch(error => {
-            console.error('Submission failed:', error);
-            alert(`Error: ${error.message}`); // Show the specific error from the backend
-        });
-    }
-});
-    </script>
 <body>
 
     <div class="container">
